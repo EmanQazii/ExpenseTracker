@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../contollers/auth_controller.dart';
-import 'package:gotrue/gotrue.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_routes.dart';
+import '../contollers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,6 +14,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final authController = AuthController();
+
   bool _obscurePassword = true;
 
   @override
@@ -102,8 +105,45 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 elevation: 4,
                               ),
-                              onPressed: () {
-                                context.go(AppRoutes.dashboard);
+                              onPressed: () async {
+                                final email = _emailController.text.trim();
+                                final password = _passwordController.text
+                                    .trim();
+
+                                if (email.isEmpty || password.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please fill all fields'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  final response = await authController.login(
+                                    email,
+                                    password,
+                                  );
+
+                                  if (response != null &&
+                                      response.user != null &&
+                                      response.session != null) {
+                                    // Login successful → navigate to dashboard
+                                    context.go(AppRoutes.dashboard);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Invalid email or password',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Login failed: $e')),
+                                  );
+                                }
                               },
                               child: const Text(
                                 "Sign In",

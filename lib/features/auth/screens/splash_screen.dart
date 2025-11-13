@@ -175,7 +175,7 @@ class _SplashScreenState extends State<SplashScreen>
                           fontWeight: FontWeight.w900,
                           color: AppColors.white,
                           letterSpacing: -1.5,
-                          fontFamily: 'Poppins', // You'll need to add this
+                          fontFamily: 'Poppins',
                           height: 1,
                         ),
                       ),
@@ -233,7 +233,7 @@ class _SplashScreenState extends State<SplashScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gold.withOpacity(0.3),
+                    color: AppColors.gold.withValues(alpha: 0.3),
                     blurRadius: 30,
                     spreadRadius: 10,
                   ),
@@ -285,7 +285,7 @@ class _SplashScreenState extends State<SplashScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gold.withOpacity(0.6),
+                    color: AppColors.gold.withValues(alpha: 0.6),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
