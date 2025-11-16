@@ -26,7 +26,7 @@ class _ChartOverviewState extends State<ChartOverview> {
       _ExpenseData(
         "Transport",
         10,
-        Colors.green.withValues(alpha: 0.8),
+        Colors.teal.withValues(alpha: 0.8),
         Icons.directions_car,
       ),
       _ExpenseData(
@@ -38,7 +38,7 @@ class _ChartOverviewState extends State<ChartOverview> {
       _ExpenseData(
         "Other",
         40,
-        Colors.indigo.withValues(alpha: 0.8),
+        Color(0xFF075F63).withValues(alpha: 0.8),
         Icons.category,
       ),
     ];

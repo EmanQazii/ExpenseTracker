@@ -20,7 +20,7 @@ class RecentTransactions extends StatelessWidget {
         "Salary Deposit",
         52000,
         Icons.account_balance,
-        Colors.green,
+        const Color.fromARGB(255, 8, 102, 93),
         "Nov 1, 2025",
       ),
       _Transaction(
@@ -34,14 +34,14 @@ class RecentTransactions extends StatelessWidget {
         "Uber Ride",
         -450,
         Icons.local_taxi,
-        Colors.indigo,
+        Colors.teal,
         "Yesterday, 9:15 AM",
       ),
       _Transaction(
         "Restaurant",
         -1800,
         Icons.restaurant,
-        Colors.orange,
+        Colors.amber,
         "Nov 11, 2025",
       ),
     ];
@@ -76,7 +76,7 @@ class RecentTransactions extends StatelessWidget {
               TextButton(
                 onPressed: () {},
                 style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.indigo),
+                  backgroundColor: WidgetStatePropertyAll(Colors.teal),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
                 ),
                 child: const Text("See All"),

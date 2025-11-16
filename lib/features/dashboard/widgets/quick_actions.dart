@@ -9,10 +9,10 @@ class QuickActions extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final actions = [
-      _QuickAction("Send", Icons.send_rounded, Colors.indigo),
-      _QuickAction("Request", Icons.call_received_rounded, Colors.green),
+      _QuickAction("Send", Icons.send_rounded, Color(0xFF075F63)),
+      _QuickAction("Request", Icons.call_received_rounded, Color(0xFF49BEB6)),
       _QuickAction("Bills", Icons.receipt_long_rounded, Colors.amber),
-      _QuickAction("More", Icons.apps_rounded, Colors.purple),
+      _QuickAction("More", Icons.apps_rounded, Colors.redAccent),
     ];
 
     return Column(

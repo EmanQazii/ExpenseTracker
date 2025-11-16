@@ -42,17 +42,17 @@ class SpendingTrend extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.indigo.withValues(alpha: 0.1),
+                  color: Colors.teal.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 14, color: Colors.indigo),
+                    Icon(Icons.calendar_today, size: 14, color: Colors.teal),
                     const SizedBox(width: 6),
                     Text(
                       "7 Days",
                       style: TextStyle(
-                        color: Colors.indigo,
+                        color: Colors.teal,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
@@ -152,7 +152,7 @@ class SpendingTrend extends StatelessWidget {
                     ],
                     isCurved: true,
                     gradient: LinearGradient(
-                      colors: [Colors.indigo, Colors.indigo.shade300],
+                      colors: [Colors.teal, Colors.teal.shade300],
                     ),
                     barWidth: 4,
                     isStrokeCapRound: true,
@@ -163,7 +163,7 @@ class SpendingTrend extends StatelessWidget {
                           radius: 4,
                           color: Colors.white,
                           strokeWidth: 3,
-                          strokeColor: Colors.indigo,
+                          strokeColor: Colors.teal,
                         );
                       },
                     ),
@@ -171,8 +171,8 @@ class SpendingTrend extends StatelessWidget {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.indigo.withValues(alpha: 0.3),
-                          Colors.indigo.withValues(alpha: 0.05),
+                          Colors.teal.withValues(alpha: 0.3),
+                          Colors.teal.withValues(alpha: 0.05),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -182,7 +182,7 @@ class SpendingTrend extends StatelessWidget {
                 ],
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (touchedSpot) => Colors.indigo,
+                    getTooltipColor: (touchedSpot) => Colors.teal,
                     tooltipRoundedRadius: 8,
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {

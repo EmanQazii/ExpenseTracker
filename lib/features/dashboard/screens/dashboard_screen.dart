@@ -56,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 children: [
                   IconButton(
                     icon: const Icon(Icons.account_circle_outlined),
-                    color: isDark ? Colors.white : Colors.indigo,
+                    color: isDark ? Colors.white : AppColors.darkTeal,
                     iconSize: 28,
                     onPressed: () {
                       context.push(AppRoutes.profile);
@@ -68,12 +68,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                       fontFamily: 'Poppins',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.indigo,
+                      color: isDark ? Colors.white : AppColors.darkTeal,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined),
-                    color: isDark ? Colors.white : Colors.indigo,
+                    color: isDark ? Colors.white : AppColors.darkTeal,
                     iconSize: 26,
                     onPressed: () {},
                   ),
@@ -118,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           child: SummaryCard(
                             title: "Expenses",
                             amount: 31000,
-                            color: Colors.green,
+                            color: Colors.teal,
                             icon: Icons.arrow_upward,
                             percentage: "+3.2%",
                           ),
@@ -185,7 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 onPressed: () {},
                                 style: ButtonStyle(
                                   backgroundColor: WidgetStatePropertyAll(
-                                    Colors.indigo,
+                                    Colors.teal,
                                   ),
                                   foregroundColor: WidgetStatePropertyAll(
                                     Colors.white,
@@ -226,7 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             "Add Transaction",
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.indigo,
+          backgroundColor: Colors.teal,
           elevation: 8,
         ),
       ),
@@ -243,7 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          selectedItemColor: Colors.indigo,
+          selectedItemColor: Colors.teal,
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
           elevation: 0,

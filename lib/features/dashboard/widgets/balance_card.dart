@@ -16,8 +16,6 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 16),
@@ -25,7 +23,7 @@ class BalanceCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          colors: [Colors.indigo, Colors.indigoAccent],
+          colors: [Color.fromARGB(255, 1, 99, 89), Colors.teal],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
