@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../contollers/auth_controller.dart';
+import '../../../services/user_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -27,6 +28,8 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() => loading = false);
 
       if (response?.user != null) {
+        final UserService userService = UserService();
+        await userService.addUserIfNotExists(user: response!.user!);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Signup successful!')));

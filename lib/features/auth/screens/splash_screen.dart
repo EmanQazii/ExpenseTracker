@@ -114,6 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 2));
 
     final session = supabase.auth.currentSession;
+    //await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
 
     if (session != null) {
