@@ -21,6 +21,6 @@ class AppColors {
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [gold, coral],
+    colors: [darkTeal, gold],
   );
 }
