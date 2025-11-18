@@ -12,6 +12,7 @@ import '../features/transactions/screens/view_transaction_screen.dart';
 import '../features/reports/screens/analytics_screen.dart';
 import '../features/settings/screens/profile_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
+import '../features/dashboard/screens/notification_screen.dart';
 
 final supabase = Supabase.instance.client;
 const publicRoutes = [
@@ -43,6 +44,10 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.dashboard,
       builder: (context, state) => const DashboardScreen(),
       routes: [
+        GoRoute(
+          path: 'notifications',
+          builder: (context, state) => NotificationsScreen(),
+        ),
         GoRoute(
           path: 'transactions',
           builder: (context, state) => TransactionScreen(),

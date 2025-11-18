@@ -11,6 +11,8 @@ class SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,7 +20,7 @@ class SummarySection extends StatelessWidget {
           "Monthly Overview",
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.darkTeal,
+            color: isDark ? Colors.white : AppColors.darkTeal,
           ),
         ),
         const SizedBox(height: 16),

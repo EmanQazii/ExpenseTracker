@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../models/analytics_model.dart';
+import '../../../providers/settings_provider.dart';
 
 class ExpenseBreakdownSection extends StatelessWidget {
   final List<CategoryBreakdown> breakdown;
@@ -21,16 +23,18 @@ class ExpenseBreakdownSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final total = breakdown.fold(0.0, (sum, item) => sum + item.total);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -54,12 +58,12 @@ class ExpenseBreakdownSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 "Spending by Category",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkTeal,
+                  color: isDark ? Colors.white : AppColors.darkTeal,
                 ),
               ),
             ],
@@ -105,6 +109,8 @@ class ExpenseBreakdownSection extends StatelessWidget {
                 label: item.category,
                 amount: item.total,
                 percentage: percentage,
+                currencySymbol: settingsProvider.currencySymbol,
+                isDark: isDark,
               );
             }).toList(),
           ),
@@ -119,12 +125,16 @@ class _LegendItem extends StatelessWidget {
   final String label;
   final double amount;
   final double percentage;
+  final String currencySymbol;
+  final bool isDark;
 
   const _LegendItem({
     required this.color,
     required this.label,
     required this.amount,
     required this.percentage,
+    required this.currencySymbol,
+    required this.isDark,
   });
 
   @override
@@ -145,10 +155,10 @@ class _LegendItem extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "$label • Rs ${amount.toStringAsFixed(0)}",
+            "$label • $currencySymbol ${amount.toStringAsFixed(0)}",
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[800],
+              color: isDark ? Colors.grey[300] : Colors.grey[800],
               fontWeight: FontWeight.w500,
             ),
           ),

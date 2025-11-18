@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../providers/settings_provider.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/chart_overview.dart';
 import '../widgets/recent_transactions.dart';
 import '../widgets/spending_trend.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/balance_card.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,6 +23,43 @@ class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   int _currentIndex = 0;
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.coral),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await Supabase.instance.client.auth.signOut();
+        if (mounted) context.go("/login");
+      } catch (e) {
+        _showSnackBar('Failed to sign out', isError: true);
+      }
+    }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: isError ? Colors.red : Colors.green,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   void initState() {
@@ -43,6 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         "${_monthName(currentMonth.month)} ${currentMonth.year}";
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final settingsProvider = context.watch<SettingsProvider>();
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0E21) : Colors.white,
@@ -54,13 +95,41 @@ class _DashboardScreenState extends State<DashboardScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.account_circle_outlined),
-                    color: isDark ? Colors.white : AppColors.darkTeal,
-                    iconSize: 28,
-                    onPressed: () {
-                      context.push(AppRoutes.profile);
-                    },
+                  // Notification Icon with Badge
+                  Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_outlined),
+                        color: isDark ? Colors.white : AppColors.darkTeal,
+                        iconSize: 26,
+                        onPressed: () {
+                          context.push("/dashboard/notifications");
+                        },
+                      ),
+                      // Badge indicator if notifications are enabled
+                      if (settingsProvider.notifications)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.coral,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF0A0E21)
+                                    : Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 8,
+                              minHeight: 8,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   Text(
                     "Home",
@@ -72,10 +141,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications_outlined),
+                    icon: const Icon(Icons.logout_rounded),
                     color: isDark ? Colors.white : AppColors.darkTeal,
-                    iconSize: 26,
-                    onPressed: () {},
+                    iconSize: 28,
+                    onPressed: () {
+                      _logout();
+                    },
                   ),
                 ],
               ),

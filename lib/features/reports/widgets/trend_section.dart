@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../models/analytics_model.dart';
+import '../../../providers/settings_provider.dart';
 
 class TrendSection extends StatelessWidget {
   final List<MonthlyTrend> trend;
@@ -10,6 +12,9 @@ class TrendSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final maxValue = trend.fold(
       0.0,
       (max, item) =>
@@ -19,11 +24,11 @@ class TrendSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -47,12 +52,12 @@ class TrendSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 "6-Month Trend",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.darkTeal,
+                  color: isDark ? Colors.white : AppColors.darkTeal,
                 ),
               ),
             ],
@@ -60,7 +65,10 @@ class TrendSection extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             "Track your spending patterns",
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
           ),
           const SizedBox(height: 24),
           SizedBox(
@@ -72,19 +80,26 @@ class TrendSection extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: maxValue / 4,
                   getDrawingHorizontalLine: (value) {
-                    return FlLine(color: Colors.grey[200]!, strokeWidth: 1);
+                    return FlLine(
+                      color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
+                      strokeWidth: 1,
+                    );
                   },
                 ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
+                      reservedSize: 50,
                       getTitlesWidget: (value, meta) {
+                        final formatted = value >= 1000
+                            ? '${settingsProvider.currencySymbol}${(value / 1000).toStringAsFixed(0)}k'
+                            : '${settingsProvider.currencySymbol}${value.toStringAsFixed(0)}';
+
                         return Text(
-                          '${(value / 1000).toStringAsFixed(0)}k',
+                          formatted,
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
                             fontSize: 10,
                           ),
                         );
@@ -108,7 +123,9 @@ class TrendSection extends StatelessWidget {
                             child: Text(
                               trend[value.toInt()].month,
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
                                 fontSize: 10,
                               ),
                             ),
