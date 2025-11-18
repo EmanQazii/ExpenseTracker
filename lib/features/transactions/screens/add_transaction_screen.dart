@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../services/transaction_service.dart';
 import '../../../models/transaction_model.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../providers/settings_provider.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -50,6 +52,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Future<void> _pickDate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final picked = await showDatePicker(
       context: context,
       firstDate: DateTime(2020),
@@ -58,12 +62,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.darkTeal,
-              onPrimary: AppColors.white,
-              surface: AppColors.white,
-              onSurface: AppColors.black,
-            ),
+            colorScheme: isDark
+                ? const ColorScheme.dark(
+                    primary: AppColors.teal,
+                    onPrimary: AppColors.white,
+                    surface: Color(0xFF1E1E1E),
+                    onSurface: AppColors.white,
+                  )
+                : const ColorScheme.light(
+                    primary: AppColors.darkTeal,
+                    onPrimary: AppColors.white,
+                    surface: AppColors.white,
+                    onSurface: AppColors.black,
+                  ),
           ),
           child: child!,
         );
@@ -95,12 +106,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Transaction added successfully!")),
+        const SnackBar(
+          content: Text("Transaction added successfully!"),
+          backgroundColor: AppColors.teal,
+        ),
       );
       Navigator.pop(context, true);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error: $e"), backgroundColor: AppColors.coral),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -109,6 +124,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? const Color(0xFF121212) : AppColors.white;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
@@ -118,9 +136,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
               _buildAppBar(),
               Expanded(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -195,9 +213,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildTypeSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? const Color(0xFF2C2C2C)
+        : Colors.grey.shade100;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(4),
@@ -216,9 +239,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
 
   Widget _buildTypeOption(String label, String value, IconData icon) {
     final isSelected = _type == value;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = value == "income"
         ? AppColors.teal
         : AppColors.coral.withValues(alpha: 0.8);
+    final inactiveColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return GestureDetector(
       onTap: () => setState(() => _type = value),
@@ -244,7 +269,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.white : Colors.grey.shade600,
+              color: isSelected ? AppColors.white : inactiveColor,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -253,7 +278,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? AppColors.white : Colors.grey.shade600,
+                color: isSelected ? AppColors.white : inactiveColor,
               ),
             ),
           ],
@@ -263,32 +288,41 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildTitleField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillColor = isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade50;
+    final borderColor = isDark ? const Color(0xFF3C3C3C) : Colors.grey.shade200;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Title",
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTeal,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _titleController,
+          style: TextStyle(color: textColor),
           decoration: InputDecoration(
             hintText: "e.g., Grocery shopping",
+            hintStyle: TextStyle(
+              color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+            ),
             prefixIcon: const Icon(Icons.edit_note, color: AppColors.teal),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: fillColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -311,24 +345,39 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildAmountField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillColor = isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade50;
+    final borderColor = isDark ? const Color(0xFF3C3C3C) : Colors.grey.shade200;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
+    final settings = context.watch<SettingsProvider>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Amount",
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTeal,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _amountController,
           keyboardType: TextInputType.number,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
           decoration: InputDecoration(
             hintText: "0.00",
+            hintStyle: TextStyle(
+              color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
             prefixIcon: Container(
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(8),
@@ -339,7 +388,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                "Rs",
+                settings.currencySymbol,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -348,14 +397,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
               ),
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: fillColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -384,6 +433,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildCategorySelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
     final categories = [
       {"value": "General", "icon": Icons.category},
       {"value": "Food", "icon": Icons.restaurant},
@@ -395,12 +446,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Category",
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTeal,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 12),
@@ -409,15 +460,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
           runSpacing: 12,
           children: categories.map((cat) {
             final isSelected = _category == cat["value"];
+            final chipBgColor = isDark
+                ? const Color(0xFF2C2C2C)
+                : Colors.grey.shade50;
+            final chipBorderColor = isDark
+                ? const Color(0xFF3C3C3C)
+                : Colors.grey.shade300;
+
             return GestureDetector(
               onTap: () => setState(() => _category = cat["value"] as String),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.gold : Colors.grey.shade50,
+                  color: isSelected ? AppColors.gold : chipBgColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isSelected ? AppColors.gold : Colors.grey.shade300,
+                    color: isSelected ? AppColors.gold : chipBorderColor,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -440,7 +498,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                     Icon(
                       cat["icon"] as IconData,
                       size: 18,
-                      color: isSelected ? AppColors.white : AppColors.darkTeal,
+                      color: isSelected ? AppColors.white : textColor,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -448,9 +506,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? AppColors.white
-                            : AppColors.darkTeal,
+                        color: isSelected ? AppColors.white : textColor,
                       ),
                     ),
                   ],
@@ -464,15 +520,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildDatePicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillColor = isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade50;
+    final borderColor = isDark ? const Color(0xFF3C3C3C) : Colors.grey.shade200;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Date",
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTeal,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -482,9 +543,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: fillColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: borderColor),
             ),
             child: Row(
               children: [
@@ -504,10 +565,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                 Expanded(
                   child: Text(
                     DateFormat('EEEE, MMMM d, yyyy').format(_selectedDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.darkTeal,
+                      color: textColor,
                     ),
                   ),
                 ),

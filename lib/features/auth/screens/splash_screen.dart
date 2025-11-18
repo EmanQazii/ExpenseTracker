@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../providers/settings_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -95,6 +97,12 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _startSplashSequence() async {
+    // Initialize settings in parallel with animations
+    final settingsProvider = context.read<SettingsProvider>();
+
+    // Start settings initialization (non-blocking)
+    final settingsInitFuture = settingsProvider.initialize();
+
     // Start logo animation
     _logoController.forward();
     await Future.delayed(const Duration(milliseconds: 600));
@@ -111,10 +119,14 @@ class _SplashScreenState extends State<SplashScreen>
       await Future.delayed(const Duration(milliseconds: 250));
     }
 
+    // Wait for minimum display time
     await Future.delayed(const Duration(seconds: 2));
 
+    // Ensure settings are loaded before navigation
+    await settingsInitFuture;
+
     final session = supabase.auth.currentSession;
-    //await Supabase.instance.client.auth.signOut();
+
     if (!mounted) return;
 
     if (session != null) {
@@ -267,7 +279,7 @@ class _SplashScreenState extends State<SplashScreen>
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColors.darkTeal,
-                    fontFamily: 'Poppins', // You'll need to add this
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../models/transaction_model.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../providers/settings_provider.dart';
 
 class TransactionHeader extends StatelessWidget {
   final VoidCallback onBack;
@@ -110,6 +112,8 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -139,7 +143,7 @@ class SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Rs ${amount.toStringAsFixed(0)}",
+            settings.formatAmount(amount, showSymbol: true),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -160,6 +164,8 @@ class TransactionTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Container(
@@ -171,11 +177,11 @@ class TransactionTabBar extends StatelessWidget {
         child: TabBar(
           controller: controller,
           indicator: BoxDecoration(
-            color: AppColors.white,
+            color: isDark ? Colors.grey[850] : AppColors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -183,8 +189,10 @@ class TransactionTabBar extends StatelessWidget {
           ),
           indicatorSize: TabBarIndicatorSize.tab,
           dividerColor: Colors.transparent,
-          labelColor: AppColors.darkTeal,
-          unselectedLabelColor: AppColors.white.withOpacity(0.9),
+          labelColor: isDark ? Colors.white : AppColors.darkTeal,
+          unselectedLabelColor: isDark
+              ? Colors.grey[200]
+              : AppColors.white.withOpacity(0.9),
           labelStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -220,6 +228,8 @@ class SearchAndFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Column(
@@ -227,25 +237,35 @@ class SearchAndFilter extends StatelessWidget {
           // Search bar
           Container(
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.15),
+              color: isDark
+                  ? Colors.grey[800]
+                  : AppColors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.white.withOpacity(0.2)),
+              border: Border.all(
+                color: isDark
+                    ? Colors.grey[700]!
+                    : AppColors.white.withOpacity(0.2),
+              ),
             ),
             child: TextField(
               onChanged: onSearchChanged,
-              style: const TextStyle(color: AppColors.white),
+              style: TextStyle(color: isDark ? Colors.white : Colors.grey[800]),
               decoration: InputDecoration(
                 hintText: "Search transactions...",
-                hintStyle: TextStyle(color: AppColors.white.withOpacity(0.8)),
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[700],
+                ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: AppColors.white.withOpacity(0.8),
+                  color: isDark ? Colors.grey[400] : Colors.grey[800],
                 ),
                 suffixIcon: searchQuery.isNotEmpty
                     ? IconButton(
                         icon: Icon(
                           Icons.clear,
-                          color: AppColors.white.withOpacity(0.8),
+                          color: isDark
+                              ? Colors.grey[400]
+                              : AppColors.white.withOpacity(0.8),
                         ),
                         onPressed: onSearchCleared,
                       )
@@ -278,12 +298,14 @@ class SearchAndFilter extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.white : AppColors.gold,
+                        color: isSelected
+                            ? (isDark ? Colors.grey[850] : AppColors.white)
+                            : (AppColors.gold),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
-                              ? AppColors.white
-                              : AppColors.gold.withOpacity(0.2),
+                              ? (isDark ? Colors.grey[700]! : AppColors.white)
+                              : (AppColors.gold.withOpacity(0.2)),
                         ),
                       ),
                       child: Text(
@@ -292,8 +314,10 @@ class SearchAndFilter extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: isSelected
-                              ? AppColors.darkTeal
-                              : AppColors.white.withOpacity(0.9),
+                              ? (isDark ? Colors.white : AppColors.darkTeal)
+                              : (isDark
+                                    ? Colors.grey[200]
+                                    : AppColors.white.withOpacity(0.9)),
                         ),
                       ),
                     ),
@@ -332,13 +356,19 @@ class TransactionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isIncome = transaction.type == "income";
     final color = isIncome ? AppColors.teal : AppColors.coral;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsProvider>();
+
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.grey.shade50;
+    final borderColor = isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade200;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: borderColor),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -356,10 +386,10 @@ class TransactionCard extends StatelessWidget {
         ),
         title: Text(
           transaction.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTeal,
+            color: textColor,
           ),
         ),
         subtitle: Padding(
@@ -385,7 +415,7 @@ class TransactionCard extends StatelessWidget {
           ),
         ),
         trailing: Text(
-          "${isIncome ? '+' : '-'} Rs ${transaction.amount.toStringAsFixed(0)}",
+          "${isIncome ? '+' : '-'} ${settings.formatAmount(transaction.amount)}",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -402,6 +432,10 @@ class TransactionEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.white : AppColors.darkTeal;
+    final subtextColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -422,19 +456,19 @@ class TransactionEmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               "No transactions found",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkTeal,
+                color: textColor,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               "Try adjusting your filters!",
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 14, color: subtextColor),
               textAlign: TextAlign.center,
             ),
           ],
@@ -477,6 +511,9 @@ class TransactionListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = isDark ? AppColors.white : AppColors.darkTeal;
+
     if (transactions.isEmpty) {
       return const TransactionEmptyState();
     }
@@ -506,10 +543,10 @@ class TransactionListView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 _formatDateHeader(date),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkTeal,
+                  color: headerColor,
                 ),
               ),
             ),

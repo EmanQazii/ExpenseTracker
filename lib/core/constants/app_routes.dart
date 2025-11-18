@@ -9,4 +9,5 @@ class AppRoutes {
   static const settings = '/dashboard/settings';
   static const profile = '/dashboard/profile';
   static const addTransaction = '/dashboard/add-transaction';
+  static const notification = '/dashboard/notifications';
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../providers/settings_provider.dart';
 
 class SavingsCard extends StatelessWidget {
   final double savings;
@@ -8,6 +10,7 @@ class SavingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     final isPositive = savings >= 0;
 
     return Container(
@@ -37,12 +40,12 @@ class SavingsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isPositive ? "💰 You Saved" : "⚠️ Overspent",
+                isPositive ? " You Saved" : "⚠️ Overspent",
                 style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
-                "Rs ${savings.abs().toStringAsFixed(0)}",
+                settingsProvider.formatAmount(savings.abs()),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,

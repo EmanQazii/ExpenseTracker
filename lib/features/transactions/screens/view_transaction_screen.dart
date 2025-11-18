@@ -100,6 +100,9 @@ class _TransactionScreenState extends State<TransactionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? const Color(0xFF121212) : AppColors.white;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.accentGradient),
@@ -140,9 +143,9 @@ class _TransactionScreenState extends State<TransactionScreen>
               ),
               Expanded(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),

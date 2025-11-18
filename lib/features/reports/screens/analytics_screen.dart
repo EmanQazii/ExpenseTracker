@@ -97,13 +97,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: isDark ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
         title: const Text("Financial Insights"),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: AppColors.darkTeal,
+        backgroundColor: isDark
+            ? const Color.fromARGB(235, 245, 184, 2)
+            : AppColors.darkTeal,
         foregroundColor: Colors.white,
       ),
       body: loading
