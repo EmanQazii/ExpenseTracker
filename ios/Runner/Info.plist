@@ -12,6 +12,15 @@
 	<!-- Alert Messages -->
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>myapp</string> <!-- Your app scheme name -->
+		</array>
+	</dict>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

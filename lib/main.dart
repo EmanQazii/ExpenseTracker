@@ -36,8 +36,29 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen for password recovery events
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+
+      if (event == AuthChangeEvent.passwordRecovery) {
+        // User clicked the reset password link in email
+        // Navigate to update password screen
+        appRouter.go('/update-password');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

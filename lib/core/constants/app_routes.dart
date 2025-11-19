@@ -4,6 +4,7 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String dashboard = '/dashboard';
   static const String resetPassword = '/reset-password';
+  static const updatePassword = '/update-password';
   static const transactions = '/dashboard/transactions';
   static const analytics = '/dashboard/analytics';
   static const settings = '/dashboard/settings';

@@ -16,7 +16,10 @@ class SupabaseService {
   }
 
   Future<void> resetPassword(String email) async {
-    await client.auth.resetPasswordForEmail(email);
+    await client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: 'myapp://update-password',
+    );
   }
 
   Future<void> signOut() => client.auth.signOut();

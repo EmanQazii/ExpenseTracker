@@ -89,7 +89,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 25),
                           _buildPasswordField(),
-                          const SizedBox(height: 40),
+
+                          // Forgot Password link
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                context.go(AppRoutes.resetPassword);
+                              },
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: AppColors.darkTeal,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  fontFamily: 'Montserrat',
+                                ),
+                              ),
+                            ),
+                          ),
 
                           // Sign In button
                           SizedBox(
@@ -156,14 +174,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 15),
 
                           // Sign Up link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
-                                "Don’t have an account?",
+                                "Don't have an account?",
                                 style: TextStyle(
                                   color: Colors.black54,
                                   fontFamily: 'Montserrat',
@@ -206,12 +224,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: controller,
       keyboardType: inputType,
-      style: const TextStyle(fontSize: 15),
+      style: const TextStyle(
+        fontSize: 15,
+        color: Colors.black87, // Input text color
+      ),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(
+          color: AppColors.darkTeal, // Hint/label text when not focused
+          fontWeight: FontWeight.w500,
+        ),
         prefixIcon: Icon(icon, color: AppColors.darkTeal),
         floatingLabelStyle: const TextStyle(
-          color: AppColors.darkTeal,
+          color: AppColors.darkTeal, // Label text when focused/floating
           fontWeight: FontWeight.w600,
         ),
         focusedBorder: OutlineInputBorder(
@@ -233,9 +258,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: const TextStyle(fontSize: 15),
+      style: const TextStyle(
+        fontSize: 15,
+        color: Colors.black87, // Input text color
+      ),
       decoration: InputDecoration(
         labelText: "Password",
+        labelStyle: const TextStyle(
+          color: AppColors.darkTeal, // Hint/label text when not focused
+          fontWeight: FontWeight.w500,
+        ),
         prefixIcon: const Icon(Icons.lock_rounded, color: AppColors.darkTeal),
         suffixIcon: IconButton(
           icon: Icon(
@@ -251,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
           },
         ),
         floatingLabelStyle: const TextStyle(
-          color: AppColors.darkTeal,
+          color: AppColors.darkTeal, // Label text when focused/floating
           fontWeight: FontWeight.w600,
         ),
         focusedBorder: OutlineInputBorder(

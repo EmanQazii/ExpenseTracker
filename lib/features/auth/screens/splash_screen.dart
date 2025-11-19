@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Start logo animation
     _logoController.forward();
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     // Start letter animations one by one
     for (int i = 0; i < _letterControllers.length; i++) {
@@ -113,14 +113,14 @@ class _SplashScreenState extends State<SplashScreen>
       await Future.delayed(const Duration(milliseconds: 60));
     }
     _taglineController.forward();
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future.delayed(const Duration(milliseconds: 150));
     for (int i = 0; i < _taglineWordControllers.length; i++) {
       _taglineWordControllers[i].forward();
-      await Future.delayed(const Duration(milliseconds: 250));
+      await Future.delayed(const Duration(milliseconds: 200));
     }
 
     // Wait for minimum display time
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     // Ensure settings are loaded before navigation
     await settingsInitFuture;

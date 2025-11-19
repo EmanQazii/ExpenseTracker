@@ -3,43 +3,63 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../contollers/auth_controller.dart';
 
-class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+class UpdatePasswordScreen extends StatefulWidget {
+  const UpdatePasswordScreen({super.key});
 
   @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  State<UpdatePasswordScreen> createState() => _UpdatePasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final emailController = TextEditingController();
+class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   final authController = AuthController();
   bool loading = false;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
-  Future<void> _resetPassword() async {
-    if (emailController.text.trim().isEmpty) {
+  Future<void> _updatePassword() async {
+    final newPassword = newPasswordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter your email')));
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters')),
+      );
       return;
     }
 
     setState(() => loading = true);
 
     try {
-      await authController.resetPassword(emailController.text.trim());
+      await authController.updatePassword(newPassword);
       setState(() => loading = false);
 
-      // Show confirmation dialog
-      _showResetConfirmationDialog();
+      // Show success dialog
+      _showSuccessDialog();
     } catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(SnackBar(content: Text('Error updating password: $e')));
     }
   }
 
-  void _showResetConfirmationDialog() {
+  void _showSuccessDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -58,7 +78,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Email sent icon with teal background
+                // Success icon with teal background
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -66,7 +86,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.email_outlined,
+                    Icons.check_circle_outline_rounded,
                     size: 48,
                     color: Colors.white,
                   ),
@@ -75,7 +95,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                 // Title
                 const Text(
-                  "Check Your Email",
+                  "Password Updated!",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -87,9 +107,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 16),
 
                 // Message
-                Text(
-                  "We've sent a password reset link to\n${emailController.text.trim()}",
-                  style: const TextStyle(
+                const Text(
+                  "Your password has been successfully updated.",
+                  style: TextStyle(
                     fontSize: 14,
                     color: Colors.black87,
                     fontFamily: 'Montserrat',
@@ -100,7 +120,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 12),
 
                 const Text(
-                  "Click the link in the email to reset your password.",
+                  "You can now login with your new password.",
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.black54,
@@ -110,7 +130,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Back to Login Button
+                // Continue to Login Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -127,7 +147,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       context.go('/');
                     },
                     child: const Text(
-                      "Back to Login",
+                      "Continue to Login",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -168,32 +188,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
           ),
 
-          // Reset Password content
+          // Update Password content
           SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: size.height * 0.12),
-
-                // Back button
-                Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      onPressed: () => context.go('/'),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.15),
 
                 const Text(
-                  "Reset Password",
+                  "New Password",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -203,7 +205,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "We'll send you a reset link",
+                  "Enter your new password",
                   style: TextStyle(
                     color: AppColors.white,
                     fontSize: 16,
@@ -229,7 +231,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         children: [
                           // Info text
                           const Text(
-                            "Enter your email address and we'll send you a link to reset your password.",
+                            "Create a strong password with at least 6 characters.",
                             style: TextStyle(
                               color: Colors.black87,
                               fontSize: 14,
@@ -240,16 +242,34 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                           const SizedBox(height: 30),
 
-                          // Email field
-                          _buildTextField(
-                            controller: emailController,
-                            label: "Email",
-                            icon: Icons.alternate_email_rounded,
-                            inputType: TextInputType.emailAddress,
+                          // New Password field
+                          _buildPasswordField(
+                            controller: newPasswordController,
+                            label: "New Password",
+                            obscurePassword: _obscureNewPassword,
+                            onToggle: () {
+                              setState(() {
+                                _obscureNewPassword = !_obscureNewPassword;
+                              });
+                            },
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 25),
 
-                          // Send Reset Link button
+                          // Confirm Password field
+                          _buildPasswordField(
+                            controller: confirmPasswordController,
+                            label: "Confirm Password",
+                            obscurePassword: _obscureConfirmPassword,
+                            onToggle: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 40),
+
+                          // Update Password button
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -263,7 +283,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 ),
                                 elevation: 4,
                               ),
-                              onPressed: loading ? null : _resetPassword,
+                              onPressed: loading ? null : _updatePassword,
                               child: loading
                                   ? const SizedBox(
                                       height: 20,
@@ -274,7 +294,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                       ),
                                     )
                                   : const Text(
-                                      "Send Reset Link",
+                                      "Update Password",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 17,
@@ -283,33 +303,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                       ),
                                     ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Back to Login link
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Remember your password?",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
-                                  fontFamily: 'Montserrat',
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => context.go('/'),
-                                child: const Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.darkTeal,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                       ),
@@ -324,16 +317,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  // Custom modern email text field
-  Widget _buildTextField({
+  // Password text field with toggle visibility
+  Widget _buildPasswordField({
     required TextEditingController controller,
     required String label,
-    required IconData icon,
-    TextInputType inputType = TextInputType.text,
+    required bool obscurePassword,
+    required VoidCallback onToggle,
   }) {
     return TextField(
       controller: controller,
-      keyboardType: inputType,
+      obscureText: obscurePassword,
       style: const TextStyle(
         fontSize: 15,
         color: Colors.black87, // Input text color
@@ -344,7 +337,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           color: AppColors.darkTeal, // Hint/label text when not focused
           fontWeight: FontWeight.w500,
         ),
-        prefixIcon: Icon(icon, color: AppColors.darkTeal),
+        prefixIcon: const Icon(Icons.lock_rounded, color: AppColors.darkTeal),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscurePassword
+                ? Icons.visibility_off_rounded
+                : Icons.visibility_rounded,
+            color: AppColors.darkTeal,
+          ),
+          onPressed: onToggle,
+        ),
         floatingLabelStyle: const TextStyle(
           color: AppColors.darkTeal, // Label text when focused/floating
           fontWeight: FontWeight.w600,

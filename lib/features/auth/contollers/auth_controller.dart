@@ -41,6 +41,24 @@ class AuthController {
     }
   }
 
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      final UserResponse res = await supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+
+      if (res.user == null) {
+        throw Exception('Failed to update password');
+      }
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> logout() async {
     await _supabase.signOut();
   }

@@ -6,6 +6,7 @@ import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/reset_password_screen.dart';
+import '../features/auth/screens/update_password_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/transactions/screens/add_transaction_screen.dart';
 import '../features/transactions/screens/view_transaction_screen.dart';
@@ -39,7 +40,10 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.resetPassword,
       builder: (context, state) => const ResetPasswordScreen(),
     ),
-
+    GoRoute(
+      path: AppRoutes.updatePassword,
+      builder: (context, state) => const UpdatePasswordScreen(),
+    ),
     GoRoute(
       path: AppRoutes.dashboard,
       builder: (context, state) => const DashboardScreen(),
