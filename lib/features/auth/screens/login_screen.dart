@@ -17,6 +17,91 @@ class _LoginScreenState extends State<LoginScreen> {
   final authController = AuthController();
 
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage('Please fill all fields', isError: true);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      debugPrint('🔐 Attempting login with email: $email');
+
+      final response = await authController.login(email, password);
+
+      // Check if widget is still mounted
+      if (!mounted) return;
+
+      if (response != null &&
+          response.user != null &&
+          response.session != null) {
+        debugPrint('✅ Login successful: ${response.user!.email}');
+
+        // Show success message
+        _showMessage('Login successful!');
+
+        // Small delay before navigation
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (!mounted) return;
+
+        // Navigate to dashboard
+        context.go(AppRoutes.dashboard);
+      } else {
+        _showMessage('Invalid email or password', isError: true);
+      }
+    } catch (e) {
+      debugPrint('❌ Login error: $e');
+
+      if (!mounted) return;
+
+      String errorMessage = 'Login failed';
+
+      // Handle specific error types
+      if (e.toString().contains('Failed host lookup') ||
+          e.toString().contains('SocketException')) {
+        errorMessage = 'No internet connection. Please check your network.';
+      } else if (e.toString().contains('Invalid login credentials')) {
+        errorMessage = 'Invalid email or password';
+      } else if (e.toString().contains('Email not confirmed')) {
+        errorMessage = 'Please verify your email first';
+      } else {
+        errorMessage = 'Login failed: ${e.toString()}';
+      }
+
+      _showMessage(errorMessage, isError: true);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: size.height * 0.06),
 
-                // Hovered Card
+                // Card with form
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Material(
@@ -86,6 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: "Email",
                             icon: Icons.alternate_email_rounded,
                             inputType: TextInputType.emailAddress,
+                            enabled: !_isLoading,
                           ),
                           const SizedBox(height: 25),
                           _buildPasswordField(),
@@ -94,9 +180,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: () {
-                                context.go(AppRoutes.resetPassword);
-                              },
+                              onPressed: _isLoading
+                                  ? null
+                                  : () {
+                                      context.go(AppRoutes.resetPassword);
+                                    },
                               child: const Text(
                                 "Forgot Password?",
                                 style: TextStyle(
@@ -112,9 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Sign In button
                           SizedBox(
                             width: double.infinity,
+                            height: 54,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.darkTeal,
+                                disabledBackgroundColor: AppColors.darkTeal
+                                    .withOpacity(0.6),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
                                 ),
@@ -123,55 +214,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 elevation: 4,
                               ),
-                              onPressed: () async {
-                                final email = _emailController.text.trim();
-                                final password = _passwordController.text
-                                    .trim();
-
-                                if (email.isEmpty || password.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Please fill all fields'),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                try {
-                                  final response = await authController.login(
-                                    email,
-                                    password,
-                                  );
-
-                                  if (response != null &&
-                                      response.user != null &&
-                                      response.session != null) {
-                                    // Login successful → navigate to dashboard
-                                    context.go(AppRoutes.dashboard);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Invalid email or password',
-                                        ),
+                              onPressed: _isLoading ? null : _handleLogin,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Login failed: $e')),
-                                  );
-                                }
-                              },
-                              child: const Text(
-                                "Sign In",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.8,
-                                ),
-                              ),
+                                    )
+                                  : const Text(
+                                      "Sign In",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 15),
@@ -188,9 +252,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  context.go(AppRoutes.signup);
-                                },
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                        context.go(AppRoutes.signup);
+                                      },
                                 child: const Text(
                                   "Sign Up",
                                   style: TextStyle(
@@ -220,23 +286,35 @@ class _LoginScreenState extends State<LoginScreen> {
     required String label,
     required IconData icon,
     TextInputType inputType = TextInputType.text,
+    bool enabled = true,
   }) {
     return TextField(
       controller: controller,
       keyboardType: inputType,
-      style: const TextStyle(
+      enabled: enabled,
+      textInputAction: TextInputAction.next,
+      style: TextStyle(
         fontSize: 15,
-        color: Colors.black87, // Input text color
+        color: enabled ? Colors.black87 : Colors.black54,
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(
-          color: AppColors.darkTeal, // Hint/label text when not focused
+        labelStyle: TextStyle(
+          color: enabled
+              ? AppColors.darkTeal
+              : AppColors.darkTeal.withOpacity(0.5),
           fontWeight: FontWeight.w500,
         ),
-        prefixIcon: Icon(icon, color: AppColors.darkTeal),
-        floatingLabelStyle: const TextStyle(
-          color: AppColors.darkTeal, // Label text when focused/floating
+        prefixIcon: Icon(
+          icon,
+          color: enabled
+              ? AppColors.darkTeal
+              : AppColors.darkTeal.withOpacity(0.5),
+        ),
+        floatingLabelStyle: TextStyle(
+          color: enabled
+              ? AppColors.darkTeal
+              : AppColors.darkTeal.withOpacity(0.5),
           fontWeight: FontWeight.w600,
         ),
         focusedBorder: OutlineInputBorder(
@@ -247,8 +325,12 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: const BorderSide(color: Colors.black26),
           borderRadius: BorderRadius.circular(14),
         ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black12),
+          borderRadius: BorderRadius.circular(14),
+        ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: enabled ? Colors.grey[100] : Colors.grey[200],
       ),
     );
   }
@@ -258,32 +340,48 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: const TextStyle(
+      enabled: !_isLoading,
+      textInputAction: TextInputAction.done,
+      onSubmitted: (_) => _handleLogin(),
+      style: TextStyle(
         fontSize: 15,
-        color: Colors.black87, // Input text color
+        color: _isLoading ? Colors.black54 : Colors.black87,
       ),
       decoration: InputDecoration(
         labelText: "Password",
-        labelStyle: const TextStyle(
-          color: AppColors.darkTeal, // Hint/label text when not focused
+        labelStyle: TextStyle(
+          color: _isLoading
+              ? AppColors.darkTeal.withOpacity(0.5)
+              : AppColors.darkTeal,
           fontWeight: FontWeight.w500,
         ),
-        prefixIcon: const Icon(Icons.lock_rounded, color: AppColors.darkTeal),
+        prefixIcon: Icon(
+          Icons.lock_rounded,
+          color: _isLoading
+              ? AppColors.darkTeal.withOpacity(0.5)
+              : AppColors.darkTeal,
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword
                 ? Icons.visibility_off_rounded
                 : Icons.visibility_rounded,
-            color: AppColors.darkTeal,
+            color: _isLoading
+                ? AppColors.darkTeal.withOpacity(0.5)
+                : AppColors.darkTeal,
           ),
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
+          onPressed: _isLoading
+              ? null
+              : () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
         ),
-        floatingLabelStyle: const TextStyle(
-          color: AppColors.darkTeal, // Label text when focused/floating
+        floatingLabelStyle: TextStyle(
+          color: _isLoading
+              ? AppColors.darkTeal.withOpacity(0.5)
+              : AppColors.darkTeal,
           fontWeight: FontWeight.w600,
         ),
         focusedBorder: OutlineInputBorder(
@@ -294,8 +392,12 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: const BorderSide(color: Colors.black26),
           borderRadius: BorderRadius.circular(14),
         ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black12),
+          borderRadius: BorderRadius.circular(14),
+        ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: _isLoading ? Colors.grey[200] : Colors.grey[100],
       ),
     );
   }

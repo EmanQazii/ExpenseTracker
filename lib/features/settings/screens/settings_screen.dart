@@ -103,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+      backgroundColor: isDark ? Color(0xFF0A0E21) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -186,14 +186,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return Scaffold(
-      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+      backgroundColor: isDark ? Color(0xFF0A0E21) : Colors.white,
       appBar: AppBar(
         title: const Text('Settings'),
         elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: isDark
-                ? LinearGradient(colors: [Colors.grey[800]!, Colors.grey[850]!])
+                ? LinearGradient(colors: [Colors.grey[850]!, Color(0xFF0A0E21)])
                 : AppColors.primaryGradient,
           ),
         ),

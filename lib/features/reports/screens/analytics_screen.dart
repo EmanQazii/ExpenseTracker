@@ -100,7 +100,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? Colors.grey[900] : Colors.grey[50],
+      backgroundColor: isDark ? Color(0xFF0A0E21) : Colors.grey[50],
       appBar: AppBar(
         title: const Text("Financial Insights"),
         centerTitle: true,

@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../models/analytics_model.dart';
+import '../../../core/constants/app_colors.dart';
 
 class SpendingTrend extends StatelessWidget {
-  const SpendingTrend({super.key});
+  final List<MonthlyTrend> monthlyTrend;
+
+  const SpendingTrend({super.key, required this.monthlyTrend});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    if (monthlyTrend.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final maxValue = monthlyTrend.fold(
+      0.0,
+      (max, item) => [max, item.expense].reduce((a, b) => a > b ? a : b),
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -28,39 +41,40 @@ class SpendingTrend extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Spending Trend",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.teal.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 14, color: Colors.teal),
-                    const SizedBox(width: 6),
-                    Text(
-                      "7 Days",
-                      style: TextStyle(
-                        color: Colors.teal,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.coral.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: AppColors.coral,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    "Spending Trend",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ],
               ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Last 6 months overview",
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
           ),
           const SizedBox(height: 24),
           SizedBox(
@@ -70,12 +84,10 @@ class SpendingTrend extends StatelessWidget {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: 2000,
+                  horizontalInterval: maxValue / 4,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: isDark
-                          ? Colors.grey.withValues(alpha: 0.1)
-                          : Colors.grey.withValues(alpha: 0.2),
+                      color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
                       strokeWidth: 1,
                     );
                   },
@@ -87,43 +99,12 @@ class SpendingTrend extends StatelessWidget {
                       reservedSize: 40,
                       getTitlesWidget: (value, meta) {
                         return Text(
-                          '${(value / 1000).toInt()}k',
+                          '${(value / 1000).toStringAsFixed(0)}k',
                           style: TextStyle(
-                            fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontSize: 10,
                           ),
                         );
-                      },
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        const days = [
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                          'Sun',
-                        ];
-                        if (value.toInt() < days.length) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              days[value.toInt()],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox();
                       },
                     ),
                   ),
@@ -133,37 +114,52 @@ class SpendingTrend extends StatelessWidget {
                   topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < monthlyTrend.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              monthlyTrend[value.toInt()].month,
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
-                minX: 0,
-                maxX: 6,
-                minY: 0,
-                maxY: 8000,
                 lineBarsData: [
                   LineChartBarData(
-                    spots: const [
-                      FlSpot(0, 3500),
-                      FlSpot(1, 4200),
-                      FlSpot(2, 3800),
-                      FlSpot(3, 5500),
-                      FlSpot(4, 4800),
-                      FlSpot(5, 6200),
-                      FlSpot(6, 4500),
-                    ],
+                    spots: monthlyTrend.asMap().entries.map((e) {
+                      return FlSpot(e.key.toDouble(), e.value.expense);
+                    }).toList(),
                     isCurved: true,
                     gradient: LinearGradient(
-                      colors: [Colors.teal, Colors.teal.shade300],
+                      colors: [
+                        AppColors.coral.withOpacity(0.8),
+                        AppColors.coral,
+                      ],
                     ),
-                    barWidth: 4,
-                    isStrokeCapRound: true,
+                    barWidth: 3,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 4,
                           color: Colors.white,
-                          strokeWidth: 3,
-                          strokeColor: Colors.teal,
+                          strokeWidth: 2,
+                          strokeColor: AppColors.coral,
                         );
                       },
                     ),
@@ -171,8 +167,8 @@ class SpendingTrend extends StatelessWidget {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.teal.withValues(alpha: 0.3),
-                          Colors.teal.withValues(alpha: 0.05),
+                          AppColors.coral.withOpacity(0.3),
+                          AppColors.coral.withOpacity(0.05),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -180,23 +176,8 @@ class SpendingTrend extends StatelessWidget {
                     ),
                   ),
                 ],
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (touchedSpot) => Colors.teal,
-                    tooltipRoundedRadius: 8,
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        return LineTooltipItem(
-                          'Rs ${spot.y.toInt()}',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
+                minY: 0,
+                maxY: maxValue * 1.2,
               ),
             ),
           ),
